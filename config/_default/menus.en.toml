@@ -12,3 +12,8 @@
   name = "Paper Review"
   pageRef = "reviews"
   weight = 30
+
+[[main]]
+  name = "Coursework"
+  pageRef = "coursework"
+  weight = 40
