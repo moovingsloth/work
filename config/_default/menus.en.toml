@@ -1,6 +1,6 @@
 [[main]]
-  name = "Reviews"
-  pageRef = "reviews"
+  name = "About"
+  pageRef = "about"
   weight = 10
 
 [[main]]
@@ -9,6 +9,6 @@
   weight = 20
 
 [[main]]
-  name = "About"
-  pageRef = "about"
+  name = "Paper Review"
+  pageRef = "reviews"
   weight = 30
