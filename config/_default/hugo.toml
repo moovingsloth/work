@@ -1,0 +1,18 @@
+baseURL = "https://movingcircle.work/"
+languageCode = "en"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+
+title = "Dong-Won Lee"
+theme = "blowfish"
+
+enableRobotsTXT = true
+[pagination]
+  pagerSize = 10
+summaryLength = 140
+
+[taxonomies]
+  tag = "tags"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]

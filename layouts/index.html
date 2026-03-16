@@ -1,0 +1,238 @@
+{{ define "main" }}
+
+{{- $reviewSection := site.GetPage "/reviews" -}}
+{{- $projectSection := site.GetPage "/projects" -}}
+{{- $featuredReviews := where $reviewSection.Pages "Params.featured" true | first 6 -}}
+{{- $featuredProjects := where $projectSection.Pages "Params.featured" true | first 3 -}}
+
+<div class="rp-wrapper">
+
+  <!-- ================================================================== -->
+  <!-- HERO                                                                 -->
+  <!-- ================================================================== -->
+  <section class="rp-hero">
+    <div class="rp-hero-inner">
+      <p class="rp-hero-label">Research Portfolio</p>
+      <h1 class="rp-hero-name">Dong-Won Lee</h1>
+      <p class="rp-hero-role">Undergraduate Researcher &mdash; Geometric Vision &amp; Robot Systems</p>
+      <p class="rp-hero-summary">
+        This site documents paper reviews, implementation notes, and technical preparation
+        toward research in geometric vision, 3D scene representation, teleoperation, and
+        robot manipulation. It is not a general blog; it is a focused research dossier.
+      </p>
+      <div class="rp-hero-ctas">
+        <a class="rp-btn-primary" href="/reviews/">Paper Reviews</a>
+        <a class="rp-btn-secondary" href="/projects/">Projects</a>
+        <a class="rp-btn-ghost" href="/about/">About</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- RESEARCH ORIENTATION                                                 -->
+  <!-- ================================================================== -->
+  <section class="rp-section">
+    <h2 class="rp-section-title">Research Orientation</h2>
+    <p class="rp-section-lead">
+      My reading and implementation work concentrates on three overlapping problem areas
+      where geometric understanding, neural scene representations, and deployable robot
+      systems converge.
+    </p>
+    <div class="rp-fit-grid">
+      <div class="rp-fit-card">
+        <h3>Geometric Vision &amp; 3D Scene Understanding</h3>
+        <p>
+          I study representations that preserve spatial structure and support
+          downstream manipulation tasks: 3D Gaussian Splatting, part-level segmentation,
+          object-centric scene graphs, and optimization-grounded reconstruction.
+          The emphasis is on what the geometry affords physically, not just visually.
+        </p>
+      </div>
+      <div class="rp-fit-card">
+        <h3>Teleoperation &amp; Robot&ndash;Object Interaction</h3>
+        <p>
+          I trace the data pipeline from sensor capture through scene encoding to
+          action generation. My background in real-time DDS communication and
+          RealSense / stereo camera infrastructure grounds this in deployment
+          constraints, not just algorithmic ideals.
+        </p>
+      </div>
+      <div class="rp-fit-card">
+        <h3>Deployable Research Software</h3>
+        <p>
+          I have experience building and maintaining systems that run continuously:
+          heterogeneous LAN/WiFi robotics networks, Kubernetes-based ML serving,
+          and multimodal data pipelines. I approach implementation as a first-class
+          research activity.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- SELECTED PAPER REVIEWS                                              -->
+  <!-- ================================================================== -->
+  <section class="rp-section">
+    <div class="rp-section-header">
+      <h2 class="rp-section-title">Selected Paper Reviews</h2>
+      <a class="rp-all-link" href="/reviews/">All reviews &rarr;</a>
+    </div>
+    <p class="rp-section-lead">
+      Each review is written to extract what is geometrically or algorithmically
+      significant, and to connect the method to practical implementation questions.
+    </p>
+
+    {{ if $featuredReviews }}
+    <div class="rp-card-grid">
+      {{ range $featuredReviews }}
+      <a class="rp-card" href="{{ .RelPermalink }}">
+        <div class="rp-card-inner">
+          {{ if .Params.tags }}
+          <div class="rp-card-tags">
+            {{ range .Params.tags }}
+            <span class="rp-tag">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
+          <h3 class="rp-card-title">{{ .Title }}</h3>
+          {{ if .Params.insight }}
+          <p class="rp-card-insight">{{ .Params.insight }}</p>
+          {{ else if .Summary }}
+          <p class="rp-card-insight">{{ .Summary | truncate 120 }}</p>
+          {{ end }}
+          <span class="rp-card-read">Read review &rarr;</span>
+        </div>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- SELECTED PROJECTS / BUILD LOG                                        -->
+  <!-- ================================================================== -->
+  <section class="rp-section">
+    <div class="rp-section-header">
+      <h2 class="rp-section-title">Selected Projects &amp; Build Log</h2>
+      <a class="rp-all-link" href="/projects/">All projects &rarr;</a>
+    </div>
+    <p class="rp-section-lead">
+      Implementation work that connects directly to research preparation:
+      sensor pipelines, paper reproductions, and systems that make future
+      experiments possible.
+    </p>
+
+    {{ if $featuredProjects }}
+    <div class="rp-card-grid rp-card-grid--3">
+      {{ range $featuredProjects }}
+      <a class="rp-card" href="{{ .RelPermalink }}">
+        <div class="rp-card-inner">
+          {{ if .Params.tags }}
+          <div class="rp-card-tags">
+            {{ range .Params.tags }}
+            <span class="rp-tag">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
+          <h3 class="rp-card-title">{{ .Title }}</h3>
+          {{ if .Params.summary_line }}
+          <p class="rp-card-insight">{{ .Params.summary_line }}</p>
+          {{ else if .Summary }}
+          <p class="rp-card-insight">{{ .Summary | truncate 120 }}</p>
+          {{ end }}
+          <span class="rp-card-read">View notes &rarr;</span>
+        </div>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- BACKGROUND / CV SNAPSHOT                                             -->
+  <!-- ================================================================== -->
+  <section class="rp-section">
+    <h2 class="rp-section-title">Background</h2>
+
+    <div class="rp-bg-grid">
+      <div>
+        <h3 class="rp-bg-heading">Education</h3>
+        <div class="rp-bg-item">
+          <span class="rp-bg-org">Kyung Hee University</span>
+          <span class="rp-bg-role">B.S. Software Convergence</span>
+          <span class="rp-bg-period">Mar 2021 &ndash; Present &middot; Yongin, South Korea</span>
+        </div>
+
+        <h3 class="rp-bg-heading" style="margin-top:2rem;">Technical Strengths</h3>
+        <div class="rp-skills">
+          <span class="rp-skill">Python</span>
+          <span class="rp-skill">C++</span>
+          <span class="rp-skill">PyTorch</span>
+          <span class="rp-skill">Isaac Sim</span>
+          <span class="rp-skill">ROS / DDS</span>
+          <span class="rp-skill">Git</span>
+          <span class="rp-skill">Kubernetes</span>
+          <span class="rp-skill">Linux</span>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="rp-bg-heading">Experience</h3>
+
+        <div class="rp-bg-item">
+          <span class="rp-bg-org">ROBROS</span>
+          <span class="rp-bg-role">Software Engineer Intern</span>
+          <span class="rp-bg-period">Dec 2025 &ndash; Feb 2026 &middot; Seoul</span>
+          <p class="rp-bg-desc">
+            Architected real-time communication infrastructure for RealSense D435
+            and stereo camera streams. Optimized Linux kernel parameters and tuned
+            CycloneDDS in heterogeneous LAN/WiFi network environments.
+          </p>
+        </div>
+
+        <div class="rp-bg-item">
+          <span class="rp-bg-org">Affective Computing Research Lab, KHU</span>
+          <span class="rp-bg-role">Research Assistant</span>
+          <span class="rp-bg-period">Jul 2025 &ndash; Dec 2025 &middot; Yongin</span>
+          <p class="rp-bg-desc">
+            Led end-to-end research on AI impact in public education.
+            Engineered preprocessing for multimodal datasets; implemented
+            statistical, ML, and DL models across the full research pipeline.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;">
+      <a class="rp-btn-ghost" href="/about/">Full background &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- CONTACT                                                              -->
+  <!-- ================================================================== -->
+  <section class="rp-contact">
+    <h2 class="rp-contact-title">Contact</h2>
+    <p class="rp-contact-note">
+      I am an undergraduate at Kyung Hee University actively preparing for graduate research.
+      If you have questions about my work or this portfolio, I am reachable by email.
+    </p>
+    <div class="rp-contact-links">
+      <a class="rp-contact-item" href="mailto:dlehddnjs245@khu.ac.kr">
+        <span class="rp-contact-label">Email</span>
+        <span class="rp-contact-value">dlehddnjs245@khu.ac.kr</span>
+      </a>
+      <a class="rp-contact-item" href="https://github.com/moovingsloth" target="_blank" rel="noopener">
+        <span class="rp-contact-label">GitHub</span>
+        <span class="rp-contact-value">github.com/moovingsloth</span>
+      </a>
+      <a class="rp-contact-item" href="/files/cv.pdf" target="_blank">
+        <span class="rp-contact-label">CV</span>
+        <span class="rp-contact-value">PDF (update when ready)</span>
+      </a>
+    </div>
+  </section>
+
+</div><!-- /.rp-wrapper -->
+
+{{ end }}

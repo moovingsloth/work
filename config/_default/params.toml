@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# Theme appearance
+# ---------------------------------------------------------------------------
+colorScheme = "zinc"
+defaultAppearance = "light"
+autoSwitchAppearance = true
+
+disableTextInHeader = false
+defaultBackgroundImage = ""
+defaultFeaturedImage = ""
+highlightCurrentMenuArea = true
+smartTOC = true
+showScrollToTop = true
+
+# Custom CSS overrides (relative to assets/)
+customCSS = ["css/custom.css"]
+
+# ---------------------------------------------------------------------------
+# Homepage
+# ---------------------------------------------------------------------------
+[homepage]
+  layout = "custom"
+  homepageImage = ""
+  showRecent = false
+  showRecentItems = 0
+  showMoreLink = false
+
+# ---------------------------------------------------------------------------
+# Article pages
+# ---------------------------------------------------------------------------
+[article]
+  showDate = true
+  showDateUpdated = false
+  showAuthor = false
+  showBreadcrumbs = true
+  showDraftLabel = true
+  showEdit = false
+  showHeadingAnchors = true
+  showPagination = true
+  showReadingTime = true
+  showTableOfContents = true
+  showTaxonomies = true
+  showWordCount = false
+  showSummary = true
+  cardView = false
+
+# ---------------------------------------------------------------------------
+# List pages (reviews/, projects/)
+# ---------------------------------------------------------------------------
+[list]
+  showBreadcrumbs = false
+  showTableOfContents = false
+  showSummary = true
+  groupByYear = false
+  cardView = true
+  cardViewScreenWidth = false
+  orderByWeight = true
+
+# ---------------------------------------------------------------------------
+# Taxonomy pages
+# ---------------------------------------------------------------------------
+[taxonomy]
+  showTermCount = true
+
+[term]
+  showViews = false
+
+# ---------------------------------------------------------------------------
+# Sitemap
+# ---------------------------------------------------------------------------
+[sitemap]
+  excludedKinds = []
