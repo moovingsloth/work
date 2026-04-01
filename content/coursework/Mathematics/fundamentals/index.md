@@ -1,14 +1,13 @@
 ---
-title: 강화학습
+title: Mathematics for AI
 date: 2026-03-03
 tags:
   - UNIVERSITY
-  - SELF-STUDY
-  - RL
+  - 선형대수
 featured: true
 weight: 10
 summary_line: Core concepts of reinforcement learning from MDP to modern policy optimization methods.
-summary: 경희대학교의 26-1학기 "강화학습"의 수업 내용바탕으로 작성되었습니다.
+summary: 선형대수, ML basics
 ---
 
 {{< katex >}}

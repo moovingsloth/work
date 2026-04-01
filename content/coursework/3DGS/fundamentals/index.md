@@ -1,14 +1,13 @@
 ---
-title: 강화학습
+title: 3D Computer Vision
 date: 2026-03-03
 tags:
-  - UNIVERSITY
   - SELF-STUDY
-  - RL
+  - 3DGS
 featured: true
 weight: 10
-summary_line: Core concepts of reinforcement learning from MDP to modern policy optimization methods.
-summary: 경희대학교의 26-1학기 "강화학습"의 수업 내용바탕으로 작성되었습니다.
+summary_line: 3DGS
+summary: 3DGS의 기본적인 개념과 Pytorch 기반 코드 리뷰를 중심으로 작성했습니다.
 ---
 
 {{< katex >}}
