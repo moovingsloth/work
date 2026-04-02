@@ -1,48 +1,99 @@
 ---
-title: "3D Gaussian Splatting for Real-Time Radiance Field Rendering"
+title: 3D Gaussian Splatting for Real-Time Radiance Field Rendering
 date: 2026-04-01
 tags:
   - 3DGS
 featured: true
 weight: 50
-insight: "Neural radiance field의 implicit 표현을 explicit 3D Gaussian primitives로 대체하고, 미분 가능한 타일 기반 래스터라이저를 통해 실시간 고품질 novel view synthesis를 달성한 논문."
-summary: "SfM 초기화부터 공분산 행렬 파라미터화, 적응적 밀도 제어, 타일 기반 스플래팅까지 — 3D Gaussian Splatting의 전체 파이프라인을 수식과 수도코드 수준에서 분석한다."
+insight: Neural radiance field의 implicit 표현을 explicit 3D Gaussian primitives로 대체하고, 미분 가능한 타일 기반 래스터라이저를 통해 실시간 고품질 novel view synthesis를 달성한 논문.
+summary: 26.04.03 발표 자료입니다.
 ---
+## 3DGS의 목표
+****
+3DGS는 View Synthesis를 위해 고안되었습니다.  (**View Synthesis**: 새로운 시점에서 이미지를 만들어내는 작업입니다.)
 
-## 논문의 위치: NeRF 패러다임의 전환점
+### 등장배경: [[NeRF]]으로부터 전환
+NeRF(2020)는 연속적인 5D 함수 $F_\Theta : (\mathbf{x}, \mathbf{d}) \to (\mathbf{c}, \sigma)$를 MLP로 학습하여 novel view synthesis의 품질을 향상시켰습니다. 그러나 단일 픽셀을 렌더링하기 위해 딥러닝을 사용해야 하므로, Training time, Quality 간 tradeoff가 존재했고, 실시간 렌더링은 불가능합니다.
 
-NeRF(2020)는 연속적인 5D 함수 $F_\Theta : (\mathbf{x}, \mathbf{d}) \to (\mathbf{c}, \sigma)$를 MLP로 학습하여 novel view synthesis의 품질을 극적으로 끌어올렸다. 그러나 단일 픽셀을 렌더링하기 위해 ray 위의 수십~수백 개 샘플 포인트에서 MLP를 평가해야 하므로, 실시간 렌더링은 원천적으로 불가능했다.
-
-이후 Instant-NGP, Plenoxels, TensoRF 등이 MLP를 voxel grid나 hash table로 대체하여 학습 속도를 개선했지만, 렌더링은 여전히 volumetric ray marching에 의존했다. **3D Gaussian Splatting(3DGS)**은 이 구조 자체를 버린다. 장면을 수백만 개의 3D 가우시안으로 표현하고, ray marching 대신 **래스터화(rasterization)** 기반으로 렌더링함으로써, 학습 품질과 실시간 렌더링을 동시에 달성한 최초의 방법이다.
+**3DGS**는 이 구조 자체를 버린다. 3D 가우시안과 Rasteriazation 렌더링으로, 학습 품질과 실시간 렌더링을 동시에 가능하게 합니다. 
 
 ---
+## Main Contribution
+### 1. **Anistropic 3D Gaussian**으로 Radiance Field를 표현
+###  2. **Adaptive Density Control**로 Gaussian을 최적화 
+### 3. **Tile Based Gaussian Rasteriser**로 렌더링
 
-## 1. Structure from Motion (SfM) 초기화
 
-### SfM이 왜 필요한가
+## Overview
 
-3DGS는 장면을 명시적 포인트 집합으로 표현하므로, 학습 시작 시 가우시안의 초기 위치가 필요하다. 이를 위해 COLMAP 기반의 SfM 파이프라인을 사용한다.
+## 0. Structure from Motion (SfM) Initialization
+
+**SfM이 필요한 이유**: 3DGS는 장면을 명시적 포인트 집합으로 표현하므로, 학습 시작 시 가우시안의 초기 위치가 필요합니다. 이를 위해 COLMAP 기반의 SfM 파이프라인을 사용합니다.
 
 **SfM 파이프라인 요약:**
-1. 입력 이미지들에서 SIFT 등의 특징점을 추출한다.
-2. 이미지 쌍 간 특징점 매칭 후, fundamental matrix를 추정하여 기하학적으로 일관된 매칭만 남긴다.
-3. Incremental SfM: 초기 이미지 쌍에서 삼각측량으로 3D 포인트를 복원하고, 새로운 이미지를 PnP로 등록하면서 bundle adjustment를 반복한다.
-4. 최종 출력: **sparse point cloud** $\mathcal{P} = \{(\mathbf{p}_i, \mathbf{c}_i)\}$ 와 각 이미지의 카메라 파라미터 $\{(K_j, [R_j | \mathbf{t}_j])\}$.
+1. 입력 이미지들에서 SIFT 등의 특징점을 추출
+2. 이미지 쌍 간 특징점 매칭 후, fundamental matrix를 추정하여 기하학적으로 일관된 매칭만 남기기
+3. Incremental SfM: 초기 이미지 쌍에서 삼각측량으로 3D 포인트를 복원하고, 새로운 이미지를 PnP로 등록하면서 bundle adjustment를 반복
+4. Output: **sparse point cloud** $\mathcal{P} = \{(\mathbf{p}_i, \mathbf{c}_i)\}$ 와 각 이미지의 카메라 파라미터 $\{(K_j, [R_j | \mathbf{t}_j])\}$.
 
-### 초기화 과정
+## 1. Initialization
 
-SfM에서 얻은 각 3D 포인트 $\mathbf{p}_i$에 대해 하나의 가우시안을 생성한다:
+![3DGS Initialization](images/initialization.png)
+
+SfM 에서 얻은 포인트들을 각 3D 포인트 $\mathbf{p}_i$로 바꿔줍니다.
 
 - **위치** $\boldsymbol{\mu}_i = \mathbf{p}_i$
 - **공분산**: 가장 가까운 이웃 3개 포인트까지의 평균 거리를 반지름으로 하는 등방성(isotropic) 가우시안으로 초기화
-- **색상**: SfM에서 얻은 RGB 값으로 SH 계수의 0차 항(DC term)을 초기화하고, 고차 항은 0으로 설정
+- **색표현**: SfM에서 얻은 RGB 값으로 SH 계수의 0차 항(DC term)을 초기화하고, 고차 항은 0으로 설정
 - **불투명도** $\alpha_i$: 작은 양수(예: 0.1)로 초기화
 
-> **핵심 포인트:** SfM point cloud는 수천~수만 개로 sparse하지만, 이후 Adaptive Density Control에 의해 수백만 개로 증가한다. 초기화의 역할은 최적화의 출발점을 기하학적으로 합리적인 위치에 놓는 것이다.
+> **파라미터들은 학습, Optimization의 대상**
 
 ---
 
-## 2. 가우시안 표현과 공분산 행렬
+## 2. Optimization
+
+![3DGS Optimization](images/optimization.png)
+
+### 2.1 SampleTrainingView
+
+![Sample Training View](images/sample_training_view.png)
+
+하나의 View 를 Sampling 하여 **V** (camera pose view) 와 **Image** (ground truth image) 를 반환합니다.
+
+### 2.2 Rasterize
+
+![Gaussian Rasterization](images/rasterization.png)
+
+3.1 SampleTrainingView 에서 얻은 V 와 Gaussian 의 parameter 을 이용하여 **rasterize**가 진행되며, 최종 결과로 이미지가 반환됩니다.
+
+### 2.3 Loss & Backpropagation
+3.2 Rasterize를 통해 얻은 이미지와 3.1의 Image를 비교하여 **Loss**를 계산합니다. 
+
+$$ \\mathcal{L} = (1 - \\lambda) \\, \\mathcal{L}_1 + \\lambda \\, \\mathcal{L}_{\\text{D-SSIM}} $$
+이후, Loss 가 줄어들도록 Gaussian 의 Parameter 들이 최적화됩니다.
+
+## 3. Adaptive Density Control
+
+![Adaptive Density Control](images/adantive_density_control.png)
+
+학습 중 Gaussian 을 더 효율적으로 배치하는 과정입니다. Optimization 이 100 회 반복될 때마다, Gaussian 을 제거, 복제, 분할하여, **Gaussian 의 개수, 분포**를 조정합니다.
+
+### Case 1. Pruning
+Gaussian의 Covariance가 지나치게 큰 경우 or 투명도가 작은 경우, 이미지 합성이 불필요하거나 불필요하다고 판단하여 제거합니다. 
+
+### Case
+
+
+
+
+
+
+
+---
+
+
+가우시안 표현과 공분산 행렬
 
 ### 3D 가우시안의 정의
 
@@ -58,7 +109,7 @@ $$G_i(\mathbf{x}) = e^{-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu}_i)^T \boldsymb
 
 ### 공분산 행렬의 파라미터화
 
-공분산 행렬은 반드시 **양의 반정치(positive semi-definite)** 여야 한다. 임의의 $3 \times 3$ 행렬을 직접 최적화하면 이 조건이 깨질 수 있으므로, 논문은 다음과 같은 분해를 사용한다:
+ 임의의 $3 \times 3$ 행렬을 직접 최적화하면 이 조건이 깨질 수 있으므로, 논문은 다음과 같은 분해를 사용한다:
 
 $$\boldsymbol{\Sigma} = R S S^T R^T$$
 
@@ -241,6 +292,8 @@ def adaptive_density_control(gaussians, grad_accum, iteration):
 ---
 
 ## 7. 전체 최적화 파이프라인
+
+![3DGS Training Pipeline](images/pipline.png)
 
 ### 손실 함수
 
